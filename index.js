@@ -15,6 +15,11 @@ require("dotenv").config();
 const cors = require("cors");
 const PORT = process.env.PORT || 5501;
 
+app.get("/", (req, res) => {
+  res.send("🚀 FarmFlow API is live and running!");
+});
+
+
 
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
@@ -27,6 +32,7 @@ app.use("/api/buyer", buyerRoute);
 app.use("/api/transporter", transporterRoute);
 app.use("/api/listings", listingRoute);
 app.use("/api/prices", priceRoutes);
+
 
 
 
