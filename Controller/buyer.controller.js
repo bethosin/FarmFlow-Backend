@@ -141,8 +141,9 @@ const getBuyerOrders = (req, res) => {
     .then((orders) => {
       const formatted = orders.map((order) => ({
         _id: order._id,
-        item: order.listing?.title || "N/A",
-        amount: order.totalAmount,
+        listing: order.listing,
+        quantity: order.quantity,
+        totalAmount: order.totalAmount,
         status: order.status,
         createdAt: order.createdAt,
       }));
@@ -154,6 +155,7 @@ const getBuyerOrders = (req, res) => {
       res.status(500).json({ status: false, message: "Error fetching orders" });
     });
 };
+
 
 // ✅ Suppliers
 const getBuyerSuppliers = (req, res) => {
