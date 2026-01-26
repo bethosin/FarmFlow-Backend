@@ -8,16 +8,15 @@ const farmerRoute = require("./Routes/farmer.route.js");
 const buyerRoute = require("./Routes/buyer.route.js");
 const transporterRoute = require("./Routes/transport.route.js");
 const listingRoute = require("./Routes/listing.route.js");  
-const priceRoutes = require("./Routes/price.route.js");
+const priceRoute = require("./Routes/price.route.js");
+const uploadRoute  = require("./Routes/upload.route.js");
 
 
 require("dotenv").config();
 const cors = require("cors");
+
 const PORT = process.env.PORT || 5501;
 
-app.get("/", (req, res) => {
-  res.send("🚀 FarmFlow API is live and running!");
-});
 
 
 
@@ -31,7 +30,8 @@ app.use("/api/farmer", farmerRoute);
 app.use("/api/buyer", buyerRoute);
 app.use("/api/transporter", transporterRoute);
 app.use("/api/listings", listingRoute);
-app.use("/api/prices", priceRoutes);
+app.use("/api/prices", priceRoute);
+app.use("/api/upload", uploadRoute);
 
 
 
