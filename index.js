@@ -24,7 +24,17 @@ app.post("/api/upload", (req, res) => {
 
 
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://farm-flow-frontend-asit.vercel.app", 
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api/auth", authRoute);
