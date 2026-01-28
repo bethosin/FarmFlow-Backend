@@ -17,6 +17,10 @@ const cors = require("cors");
 
 const PORT = process.env.PORT || 5501;
 
+app.post("/api/upload", (req, res) => {
+  res.send("Upload route works!");
+});
+
 
 
 
