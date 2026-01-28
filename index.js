@@ -20,18 +20,7 @@ const PORT = process.env.PORT || 5501;
 
 
 
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://farm-flow-frontend-asit.vercel.app", 
-];
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  }),
-);
+app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api/auth", authRoute);
