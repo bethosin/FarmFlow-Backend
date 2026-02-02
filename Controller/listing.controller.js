@@ -125,6 +125,7 @@ const getListingById = (req, res) => {
 // ✅ PUT: Update Listing
 const updateListing = (req, res) => {
   const listingId = req.params.id;
+  console.log("received put  id:", listingId);
 
   if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
     return res
@@ -135,6 +136,7 @@ const updateListing = (req, res) => {
   Listing.findById(listingId)
     .then((listing) => {
       if (!listing) {
+        console.log("Listing not found for id:");
         return res
           .status(404)
           .json({ status: false, message: "Listing not found" });
