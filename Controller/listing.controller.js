@@ -120,52 +120,7 @@ const getListingById = (req, res) => {
     });
 };
 
-//  Update Listing
-// const updateListing = (req, res) => {
-//   const listingId = req.params.id;
-//   console.log("received put  id:", listingId);
 
-//   if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
-//     return res
-//       .status(400)
-//       .json({ status: false, message: "Invalid listing ID" });
-//   }
-
-//   Listing.findById(listingId)
-//     .then((listing) => {
-//       if (!listing) {
-//         console.log("Listing not found for id:");
-//         return res
-//           .status(404)
-//           .json({ status: false, message: "Listing not found" });
-//       }
-
-//       // Optional: Only allow owner to update
-//       if (listing.seller.toString() !== req.user._id.toString()) {
-//         return res
-//           .status(403)
-//           .json({ status: false, message: "Not authorized to update this listing" });
-//       }
-
-//       // Update fields
-//       Object.assign(listing, req.body);
-
-//       return listing.save();
-//     })
-//     .then((updated) => {
-//       res.status(200).json({
-//         status: true,
-//         message: "Listing updated successfully",
-//         listing: updated,
-//       });
-//     })
-//     .catch((err) => {
-//       console.error("Update Listing Error:", err);
-//       res
-//         .status(500)
-//         .json({ status: false, message: "Failed to update listing" });
-//     });
-// };
 
 //   Delete Listing
 const deleteListing = (req, res) => {
