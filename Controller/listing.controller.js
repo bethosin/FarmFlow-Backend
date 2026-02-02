@@ -55,10 +55,10 @@ const createListing = (req, res) => {
     });
 };
 
-// ✅ GET: All Listings (for Marketplace)
+//  All Listings (for Marketplace)
 const getAllListings = (req, res) => {
   Listing.find()
-    .populate("seller", "firstName lastName") 
+    .populate("seller", "firstName lastName")
     .then((listings) => {
       res.status(200).json({
         status: true,
@@ -75,7 +75,7 @@ const getAllListings = (req, res) => {
     });
 };
 
-// ✅ GET: Listing by ID
+//  Listing by ID
 const getListingById = (req, res) => {
   const listingId = req.params.id;
 
@@ -113,63 +113,61 @@ const getListingById = (req, res) => {
     })
     .catch((err) => {
       console.error("Error fetching listing by ID:", err);
-      res
-        .status(500)
-        .json({
-          status: false,
-          message: "Server error while fetching listing",
-        });
-    });
-};
-
-// ✅ PUT: Update Listing
-const updateListing = (req, res) => {
-  const listingId = req.params.id;
-  console.log("received put  id:", listingId);
-
-  if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
-    return res
-      .status(400)
-      .json({ status: false, message: "Invalid listing ID" });
-  }
-
-  Listing.findById(listingId)
-    .then((listing) => {
-      if (!listing) {
-        console.log("Listing not found for id:");
-        return res
-          .status(404)
-          .json({ status: false, message: "Listing not found" });
-      }
-
-      // Optional: Only allow owner to update
-      if (listing.seller.toString() !== req.user._id.toString()) {
-        return res
-          .status(403)
-          .json({ status: false, message: "Not authorized to update this listing" });
-      }
-
-      // Update fields
-      Object.assign(listing, req.body);
-
-      return listing.save();
-    })
-    .then((updated) => {
-      res.status(200).json({
-        status: true,
-        message: "Listing updated successfully",
-        listing: updated,
+      res.status(500).json({
+        status: false,
+        message: "Server error while fetching listing",
       });
-    })
-    .catch((err) => {
-      console.error("Update Listing Error:", err);
-      res
-        .status(500)
-        .json({ status: false, message: "Failed to update listing" });
     });
 };
 
-// ✅ DELETE: Delete Listing
+//  Update Listing
+// const updateListing = (req, res) => {
+//   const listingId = req.params.id;
+//   console.log("received put  id:", listingId);
+
+//   if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
+//     return res
+//       .status(400)
+//       .json({ status: false, message: "Invalid listing ID" });
+//   }
+
+//   Listing.findById(listingId)
+//     .then((listing) => {
+//       if (!listing) {
+//         console.log("Listing not found for id:");
+//         return res
+//           .status(404)
+//           .json({ status: false, message: "Listing not found" });
+//       }
+
+//       // Optional: Only allow owner to update
+//       if (listing.seller.toString() !== req.user._id.toString()) {
+//         return res
+//           .status(403)
+//           .json({ status: false, message: "Not authorized to update this listing" });
+//       }
+
+//       // Update fields
+//       Object.assign(listing, req.body);
+
+//       return listing.save();
+//     })
+//     .then((updated) => {
+//       res.status(200).json({
+//         status: true,
+//         message: "Listing updated successfully",
+//         listing: updated,
+//       });
+//     })
+//     .catch((err) => {
+//       console.error("Update Listing Error:", err);
+//       res
+//         .status(500)
+//         .json({ status: false, message: "Failed to update listing" });
+//     });
+// };
+
+//   Delete Listing
 const deleteListing = (req, res) => {
   const listingId = req.params.id;
 
@@ -181,14 +179,12 @@ const deleteListing = (req, res) => {
           .json({ status: false, message: "Listing not found" });
       }
 
-      // ✅ Only allow seller to delete their own listing
+      //  Only allow seller to delete their own listing
       if (listing.seller.toString() !== req.user._id.toString()) {
-        return res
-          .status(403)
-          .json({
-            status: false,
-            message: "Not authorized to delete this listing",
-          });
+        return res.status(403).json({
+          status: false,
+          message: "Not authorized to delete this listing",
+        });
       }
 
       return Listing.findByIdAndDelete(listingId);
@@ -212,13 +208,9 @@ const deleteListing = (req, res) => {
     });
 };
 
-
-
-
 module.exports = {
   createListing,
   getAllListings,
   getListingById,
-  updateListing,
   deleteListing,
 };
