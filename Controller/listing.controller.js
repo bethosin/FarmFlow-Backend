@@ -122,9 +122,101 @@ const getListingById = (req, res) => {
     });
 };
 
+// ✅ PUT: Update Listing
+const updateListing = (req, res) => {
+  const listingId = req.params.id;
+
+  if (!listingId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid listing ID" });
+  }
+
+  Listing.findById(listingId)
+    .then((listing) => {
+      if (!listing) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Listing not found" });
+      }
+
+      // Optional: Only allow owner to update
+      if (listing.seller.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ status: false, message: "Not authorized to update this listing" });
+      }
+
+      // Update fields
+      Object.assign(listing, req.body);
+
+      return listing.save();
+    })
+    .then((updated) => {
+      res.status(200).json({
+        status: true,
+        message: "Listing updated successfully",
+        listing: updated,
+      });
+    })
+    .catch((err) => {
+      console.error("Update Listing Error:", err);
+      res
+        .status(500)
+        .json({ status: false, message: "Failed to update listing" });
+    });
+};
+
+// ✅ DELETE: Delete Listing
+const deleteListing = (req, res) => {
+  const listingId = req.params.id;
+
+  Listing.findById(listingId)
+    .then((listing) => {
+      if (!listing) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Listing not found" });
+      }
+
+      // ✅ Only allow seller to delete their own listing
+      if (listing.seller.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({
+            status: false,
+            message: "Not authorized to delete this listing",
+          });
+      }
+
+      return Listing.findByIdAndDelete(listingId);
+    })
+    .then((deleted) => {
+      if (deleted) {
+        return res.status(200).json({
+          status: true,
+          message: "Listing deleted successfully",
+        });
+      }
+    })
+    .catch((err) => {
+      console.error("Delete Listing Error:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          status: false,
+          message: "Failed to delete listing",
+        });
+      }
+    });
+};
+
+
+
 
 module.exports = {
   createListing,
   getAllListings,
   getListingById,
+  updateListing,
+  deleteListing,
 };

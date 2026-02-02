@@ -6,11 +6,17 @@ const {
   getListingById,
   getAllListings,
   createListing,
+  updateListing,
+  deleteListing,
 } = require("../Controller/listing.controller");
 
 router.post("/", protect, createListing);
 
 router.get("/:id", protect, getListingById);
-router.get("/", getAllListings);
+router.get("/", protect, getAllListings);
+
+router.put("/:id", protect, updateListing);
+
+router.delete("/:id", protect, deleteListing);
 
 module.exports = router;
