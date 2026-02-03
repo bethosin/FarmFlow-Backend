@@ -10,6 +10,7 @@ const transporterRoute = require("./Routes/transport.route.js");
 const listingRoute = require("./Routes/listing.route.js");  
 const priceRoute = require("./Routes/price.route.js");
 const uploadRoute  = require("./Routes/upload.route.js");
+const contactRoute = require("./Routes/contact.route.js");
 
 
 require("dotenv").config();
@@ -32,6 +33,8 @@ app.use("/api/transporter", transporterRoute);
 app.use("/api/listings", listingRoute);
 app.use("/api/prices", priceRoute);
 app.use("/api/upload", uploadRoute);
+app.use("/api/contact", contactRoute);
+
 
 
 
