@@ -59,55 +59,55 @@ const registerUser = (req, res) => {
         });
 
         newUser
-          .save()
-          .then((user) => {
-            // 🔍 Add debugging logs for Render
-            console.log("📨 Preparing to send welcome email...");
-            console.log("✅ EMAIL_USER:", process.env.EMAIL_USER);
-            console.log("✅ EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
-            console.log("➡️ Sending to:", email);
+      newUser
+        .save()
+        .then((user) => {
+          const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS,
+            },
+          });
 
-            const transporter = nodemailer.createTransport({
-              service: "gmail",
-              auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+          const mailOptions = {
+            from: `"FarmFlow" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: "Welcome to FarmFlow!",
+            html: registration(firstName, lastName),
+          };
+
+          console.log("📨 Preparing to send welcome email...");
+
+          transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+              console.error("❌ Email send error:", err);
+              return res.status(500).json({
+                message: "User registered, but email failed to send",
+                error: err.message,
+              });
+            }
+
+            console.log("✅ Email sent:", info.response);
+
+            // ✅ Now send response after email is sent
+            res.status(201).json({
+              status: true,
+              message: "User registered and email sent",
+              user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
               },
             });
-
-            const mailOptions = {
-              from: `"FarmFlow" <${process.env.EMAIL_USER}>`,
-              to: email,
-              subject: "Welcome to FarmFlow!",
-              html: registration(firstName, lastName),
-            };
-
-            transporter.sendMail(mailOptions, (err, info) => {
-              if (err) {
-                console.error("❌ Email send error:", err);
-                return res.status(500).json({
-                  message: "User registered, but email failed to send",
-                  error: err.message,
-                });
-              }
-
-              console.log("✅ Email sent:", info.response);
-              res.status(201).json({
-                status: true,
-                message: "User registered and email sent",
-                user: {
-                  id: user._id,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  email: user.email,
-                },
-              });
-            });
-          })
-          .catch((err) => {
-            console.error("Save Error:", err);
-            res.status(500).json({ message: "Failed to create user" });
           });
+        })
+
+        .catch((err) => {
+          console.error("Save Error:", err);
+          res.status(500).json({ message: "Failed to create user" });
+        });
       });
     })
     .catch((err) => {
