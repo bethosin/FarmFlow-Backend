@@ -84,6 +84,8 @@ const registerUser = (req, res) => {
               html: registration(firstName, lastName),
             };
 
+            console.log("email sending", user.email)
+
             transporter.sendMail(mailOptions, (error, info) => {
               if (error) {
                 console.error(" Email error:", error);
