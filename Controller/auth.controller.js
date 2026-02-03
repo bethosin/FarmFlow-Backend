@@ -2,9 +2,12 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../Models/user.model");
+const nodemailer = require("nodemailer");
+const registration = require("../Email/registration");
+require("dotenv").config();
 
 const registerUser = (req, res) => {
-  console.log("REGISTER HIT 👉", req.body);
+
   const {
     firstName,
     lastName,
@@ -12,10 +15,8 @@ const registerUser = (req, res) => {
     password,
     confirmPassword,
     role,
-    adminCode,
   } = req.body;
 
-  // Validation
   if (
     !firstName ||
     !lastName ||
@@ -33,15 +34,13 @@ const registerUser = (req, res) => {
 
   const upperRole = role.toUpperCase();
 
-  // Protect admin registration
   if (upperRole === "ADMIN") {
     const adminCodeFromClient = req.body.adminCode;
+    const validAdminCode = process.env.ADMIN_CODE;
 
     if (!adminCodeFromClient) {
       return res.status(400).json({ message: "Admin code is required" });
     }
-
-    const validAdminCode = process.env.ADMIN_CODE;
 
     if (adminCodeFromClient !== validAdminCode) {
       return res
@@ -50,7 +49,6 @@ const registerUser = (req, res) => {
     }
   }
 
-  // Check if user already exists
   userModel
     .findOne({ email })
     .then((existingUser) => {
@@ -58,7 +56,6 @@ const registerUser = (req, res) => {
         return res.status(409).json({ message: "Email already in use" });
       }
 
-      // Hash password
       bcrypt.hash(password, 10).then((hashedPassword) => {
         const newUser = new userModel({
           firstName,
@@ -71,6 +68,30 @@ const registerUser = (req, res) => {
         newUser
           .save()
           .then((user) => {
+            // Send welcome email
+            const transporter = nodemailer.createTransport({
+              service: "gmail",
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+              },
+            });
+
+            const mailOptions = {
+              from: `"FarmFlow" <${process.env.EMAIL_USER}>`,
+              to: email,
+              subject: "Welcome to FarmFlow!",
+              html: registration(firstName, lastName),
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.error(" Email error:", error);
+              } else {
+                console.log(" Welcome email sent:", info.response);
+              }
+            });
+
             res.status(201).json({
               status: true,
               message: "Account created successfully",
@@ -95,9 +116,8 @@ const registerUser = (req, res) => {
     });
 };
 
-
 const loginUser = (req, res) => {
-  console.log("LOGIN HIT 👉", req.body);
+
   const { email, password } = req.body;
 
   // Validation
