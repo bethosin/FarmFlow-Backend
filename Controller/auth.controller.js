@@ -7,15 +7,8 @@ const registration = require("../Email/registration");
 require("dotenv").config();
 
 const registerUser = (req, res) => {
-
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    confirmPassword,
-    role,
-  } = req.body;
+  const { firstName, lastName, email, password, confirmPassword, role } =
+    req.body;
 
   if (
     !firstName ||
@@ -84,28 +77,30 @@ const registerUser = (req, res) => {
               html: registration(firstName, lastName),
             };
 
-            console.log("email sending", user.email)
-
-            transporter.sendMail(mailOptions, (error, info) => {
-              if (error) {
-                console.error(" Email error:", error);
-              } else {
-                console.log(" Welcome email sent:", info.response);
+            console.log("email sending", user.email);
+            transporter.sendMail(mailOptions, (err, info) => {
+              if (err) {
+                console.error("❌ Email send error:", err);
+                return res.status(500).json({
+                  message: "User registered, but email failed to send",
+                  error: err.message,
+                });
               }
-            });
 
-            res.status(201).json({
-              status: true,
-              message: "Account created successfully",
-              user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                role: user.role,
-              },
+              console.log("✅ Email sent:", info.response);
+              res.status(201).json({
+                status: true,
+                message: "User registered and email sent",
+                user: {
+                  id: user._id,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  email: user.email,
+                },
+              });
             });
           })
+
           .catch((err) => {
             console.error("Save Error:", err);
             res.status(500).json({ message: "Failed to create user" });
@@ -119,7 +114,6 @@ const registerUser = (req, res) => {
 };
 
 const loginUser = (req, res) => {
-
   const { email, password } = req.body;
 
   // Validation
@@ -149,10 +143,10 @@ const loginUser = (req, res) => {
             email: user.email,
           },
           process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES_IN }
+          { expiresIn: process.env.JWT_EXPIRES_IN },
         );
 
-           console.log("Generated Token:", token);
+        console.log("Generated Token:", token);
 
         res.status(200).json({
           message: "Login successful",
@@ -172,7 +166,6 @@ const loginUser = (req, res) => {
       res.status(500).json({ message: "Server error" });
     });
 };
-
 
 module.exports = {
   registerUser,
