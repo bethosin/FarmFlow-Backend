@@ -61,7 +61,12 @@ const registerUser = (req, res) => {
         newUser
           .save()
           .then((user) => {
-            // Send welcome email
+            // 🔍 Add debugging logs for Render
+            console.log("📨 Preparing to send welcome email...");
+            console.log("✅ EMAIL_USER:", process.env.EMAIL_USER);
+            console.log("✅ EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+            console.log("➡️ Sending to:", email);
+
             const transporter = nodemailer.createTransport({
               service: "gmail",
               auth: {
@@ -77,7 +82,6 @@ const registerUser = (req, res) => {
               html: registration(firstName, lastName),
             };
 
-            console.log("email sending", user.email);
             transporter.sendMail(mailOptions, (err, info) => {
               if (err) {
                 console.error("❌ Email send error:", err);
@@ -100,7 +104,6 @@ const registerUser = (req, res) => {
               });
             });
           })
-
           .catch((err) => {
             console.error("Save Error:", err);
             res.status(500).json({ message: "Failed to create user" });
@@ -112,6 +115,7 @@ const registerUser = (req, res) => {
       res.status(500).json({ message: "Server error" });
     });
 };
+
 
 const loginUser = (req, res) => {
   const { email, password } = req.body;
