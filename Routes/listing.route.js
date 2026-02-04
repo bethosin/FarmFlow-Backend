@@ -13,7 +13,7 @@ const {
 router.post("/", protect, createListing);
 
 router.get("/:id", protect, getListingById);
-router.get("/", protect, getAllListings);
+router.get("/",  getAllListings);
 
 
 router.delete("/:id", protect, deleteListing);
