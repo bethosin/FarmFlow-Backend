@@ -63,13 +63,7 @@ const registerUser = (req, res) => {
         newUser
           .save()
           .then((user) => {
-            console.log("📨 Preparing to send welcome email...");
-            console.log(
-              "✅ RESEND_API_KEY exists:",
-              !!process.env.RESEND_API,
-            );
-            console.log("✅ FROM_EMAIL:", process.env.EMAIL_USER);
-
+           
             resend.emails
               .send({
                 from: process.env.EMAIL_USER,
@@ -78,7 +72,7 @@ const registerUser = (req, res) => {
                 html: registration(firstName, lastName),
               })
               .then(() => {
-                console.log("✅ Email sent via Resend");
+              
                 res.status(201).json({
                   status: true,
                   message: "User registered and email sent",
@@ -91,7 +85,7 @@ const registerUser = (req, res) => {
                 });
               })
               .catch((err) => {
-                console.error("❌ Resend email error:", err);
+                console.error(" Resend email error:", err);
                 res.status(500).json({
                   message: "User registered, but email failed to send",
                   error: err.message,
