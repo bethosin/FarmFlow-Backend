@@ -75,7 +75,7 @@ const registerUser = (req, res) => {
               
                 res.status(201).json({
                   status: true,
-                  message: "User registered and email sent",
+                  message: "Account created successfully",
                   user: {
                     id: user._id,
                     firstName: user.firstName,
