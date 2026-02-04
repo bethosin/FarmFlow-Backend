@@ -2,9 +2,11 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../Models/user.model");
-const nodemailer = require("nodemailer");
 const registration = require("../Email/registration");
 require("dotenv").config();
+
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API);
 
 const registerUser = (req, res) => {
   const { firstName, lastName, email, password, confirmPassword, role } =
@@ -59,55 +61,47 @@ const registerUser = (req, res) => {
         });
 
         newUser
-      newUser
-        .save()
-        .then((user) => {
-          const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASS,
-            },
-          });
+          .save()
+          .then((user) => {
+            console.log("📨 Preparing to send welcome email...");
+            console.log(
+              "✅ RESEND_API_KEY exists:",
+              !!process.env.RESEND_API,
+            );
+            console.log("✅ FROM_EMAIL:", process.env.EMAIL_USER);
 
-          const mailOptions = {
-            from: `"FarmFlow" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: "Welcome to FarmFlow!",
-            html: registration(firstName, lastName),
-          };
-
-          console.log("📨 Preparing to send welcome email...");
-
-          transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-              console.error("❌ Email send error:", err);
-              return res.status(500).json({
-                message: "User registered, but email failed to send",
-                error: err.message,
+            resend.emails
+              .send({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: "Welcome to FarmFlow!",
+                html: registration(firstName, lastName),
+              })
+              .then(() => {
+                console.log("✅ Email sent via Resend");
+                res.status(201).json({
+                  status: true,
+                  message: "User registered and email sent",
+                  user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                  },
+                });
+              })
+              .catch((err) => {
+                console.error("❌ Resend email error:", err);
+                res.status(500).json({
+                  message: "User registered, but email failed to send",
+                  error: err.message,
+                });
               });
-            }
-
-            console.log("✅ Email sent:", info.response);
-
-            // ✅ Now send response after email is sent
-            res.status(201).json({
-              status: true,
-              message: "User registered and email sent",
-              user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-              },
-            });
+          })
+          .catch((err) => {
+            console.error("Save Error:", err);
+            res.status(500).json({ message: "Failed to create user" });
           });
-        })
-
-        .catch((err) => {
-          console.error("Save Error:", err);
-          res.status(500).json({ message: "Failed to create user" });
-        });
       });
     })
     .catch((err) => {
@@ -115,7 +109,6 @@ const registerUser = (req, res) => {
       res.status(500).json({ message: "Server error" });
     });
 };
-
 
 const loginUser = (req, res) => {
   const { email, password } = req.body;
