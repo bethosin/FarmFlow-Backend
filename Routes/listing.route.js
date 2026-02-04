@@ -12,7 +12,7 @@ const {
 
 router.post("/", protect, createListing);
 
-router.get("/:id", protect, getListingById);
+router.get("/:id",  getListingById);
 router.get("/",  getAllListings);
 
 
